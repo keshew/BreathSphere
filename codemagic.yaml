@@ -11,7 +11,7 @@ workflows:
         bundle_identifier: com.grouplld.BreathSphere
       vars:
         APP_STORE_CONNECT_KEY: breathsphere
-        APP_STORE_APPLE_ID: 6753625851
+        APP_STORE_APPLE_ID: 6754022289
         BUNDLE_ID: "com.grouplld.BreathSphere"
         XCODE_PROJECT: "BreathSphere.xcodeproj"
         XCODE_SCHEME: "BreathSphere"
