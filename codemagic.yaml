@@ -1,0 +1,43 @@
+workflows:
+  sample-workflow:
+    name: EggProfit workflow
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: breathsphere
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.grouplld.BreathSphere
+      vars:
+        APP_STORE_CONNECT_KEY: breathsphere
+        APP_STORE_APPLE_ID: 6753625851
+        BUNDLE_ID: "com.grouplld.BreathSphere"
+        XCODE_PROJECT: "BreathSphere.xcodeproj"
+        XCODE_SCHEME: "BreathSphere"
+    scripts:
+      - name: Set up provisioning profiles settings on Xcode project
+        script: xcode-project use-profiles
+      - name: Increment build number
+        script: | 
+          #!/bin/sh
+          cd $CM_BUILD_DIR
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APPLE_ID")
+          agvtool new-version -all $(($LATEST_BUILD_NUMBER + 1))
+      - name: Build ipa for distribution
+        script: |
+          xcode-project build-ipa \
+            --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_KEY
+        auth: integration
+        submit_to_app_store: true
+        cancel_previous_submissions: true
+        release_type: SCHEDULED
